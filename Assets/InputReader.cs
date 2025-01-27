@@ -129,11 +129,13 @@ public class InputReader : MonoBehaviour
         if(jumpPresses >= 25 && GameData.jumpDebugging)
         {
             buttonHandler.SpamWarning("Jump");
+            jumpPresses = 0;
         }  
 
         if(aPresses >= 25 && GameData.aDebugging)
         {
             buttonHandler.SpamWarning("A");
+            aPresses = 0;
         }
     }
 
