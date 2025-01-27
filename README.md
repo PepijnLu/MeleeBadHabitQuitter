@@ -17,6 +17,7 @@ SETUP:
 7. Press Esc in moverlay:
 - Debug Inputs -> Turn on Buttons (others are optional, functionality not (yet) implemented)
 - Turn on Debug Console (optional, but shows errors when moverlay breaks)
+- Slippi -> Enable Melee Rollback for use in netplay
 
 Now anytime you want to boot it up, just:
 
