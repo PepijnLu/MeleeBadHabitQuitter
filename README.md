@@ -15,8 +15,8 @@ This requires some dependencies. Read their README for instructions
 6. Run m-overlay-master/build/application.love
    
 7. Press Esc in moverlay:
-Debug Inputs -> Turn on Buttons (others are optional, functionality not (yet) implemented)
-Turn on Debug Console (optional, but shows errors when moverlay breaks)
+- Debug Inputs -> Turn on Buttons (others are optional, functionality not (yet) implemented)
+- Turn on Debug Console (optional, but shows errors when moverlay breaks)
 
 Now anytime you want to boot it up, just:
 
@@ -26,4 +26,4 @@ Now anytime you want to boot it up, just:
 
 3. Run the MeleeBadHabitQuitter/Build/MeleeBadHabitQuitter.exe
 
-If it doesn't work or suddenly stops working, try restarting moverlay
+If it doesn't work or suddenly stops working, try restarting moverlay and MeleeBadHabitQuitter (or shoot me a dm on discord: clubpengin)
