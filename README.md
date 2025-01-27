@@ -4,7 +4,7 @@ SETUP:
 (Code -> Download zip)
 
 2. Make sure you can run the release.bat file inside the moverlay folder
-This requires some dependencies. Read their README for instructions
+- This requires some dependencies. Read their README for instructions
 
 3. Download this git repo as zip (Code -> Download zip)
 
