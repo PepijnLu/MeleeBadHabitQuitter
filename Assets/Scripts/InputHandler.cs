@@ -13,10 +13,11 @@ public class InputHandler : MonoBehaviour
         ["bPress"] = false,
         ["xPress"] = false,
         ["yPress"] = false,
+        ["startPress"] = false,
 
         ["lPress"] = false,
         ["rPress"] = false,
-        ["startPress"] = false,
+        ["zPress"] = false,
 
         ["dpadDown"] = false,
         ["dpadUp"] = false,

@@ -6,6 +6,7 @@ public class CustomButtonBehaviour : MonoBehaviour
 {
     Dictionary<string, int> buttonPressesPerSecond;
     [SerializeField] AudioSource buzzerSound;
+    [SerializeField] StateHandler stateHandler;
 
     void Start()
     {
@@ -26,12 +27,14 @@ public class CustomButtonBehaviour : MonoBehaviour
 
         if(_button == "yPress" || _button == "xPress")
         {
-            if((buttonPressesPerSecond["yPress"] + buttonPressesPerSecond["xPress"] >= GameData.jumpThreshold) && GameData.jumpDebugging)
-            {
-                buttonPressesPerSecond["yPress"] = 0;
-                buttonPressesPerSecond["xPress"] = 0;
-                PlayAudioAtRandomPitch(buzzerSound);
-            }
+            // if((buttonPressesPerSecond["yPress"] + buttonPressesPerSecond["xPress"] >= GameData.jumpThreshold) && GameData.jumpDebugging)
+            // {
+            //     buttonPressesPerSecond["yPress"] = 0;
+            //     buttonPressesPerSecond["xPress"] = 0;
+            //     PlayAudioAtRandomPitch(buzzerSound);
+            // }
+
+            if(stateHandler.inHitStun && !buzzerSound.isPlaying && GameData.jumpDebugging) PlayAudioAtRandomPitch(buzzerSound);
         }
         else if((buttonPressesPerSecond["aPress"] >= GameData.aThreshold) && GameData.aDebugging)
         {

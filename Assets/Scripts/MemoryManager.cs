@@ -8,32 +8,84 @@ using UnityEngine;
 public class MemoryManager : MonoBehaviour
 {
     [SerializeField] ControllerBindings controllerBindings;
+    [SerializeField] StateOffsets stateOffsets;
     [SerializeField] InputHandler inputHandler;
+    [SerializeField] StateHandler stateHandler;
+    ulong logicalCharacterDataAddress;
     //[SerializeField] ulong logicalAddressHex;
     // Start is called before the first frame update
     void Start()
     {
-        
+        //Run this every new match
+        logicalCharacterDataAddress = GetPhysicalCharacterDataLocation();
     }
 
     // Update is called once per frame
     void Update()
     {
-        ulong inputAddress = 0x804C1FAC;
-        ulong netplayAddress = 0x80005614 + 0x01;
+        ulong logicalInputAddress = GetPhysicalAddress(0x804C1FAC);
+
+        ulong physicalTestAddress = stateOffsets.AddOffsetToAddress("InHitstun", logicalCharacterDataAddress);
+
+        ulong logicalNetplayAddress = 0x80005614;
+        ulong physicalNetplayAddress = GetPhysicalAddress(logicalNetplayAddress);
+
+        // ulong physicalLocalPlayerIndexAddress = stateOffsets.AddOffsetToAddress("Local Player Ready", physicalNetplayAddress);
+        // ulong physicalTestAddress = physicalLocalPlayerIndexAddress;
 
         for(int i = 0; i < GameData.port; i++)
         {
-            inputAddress += (ulong)i * 0x44;
+            logicalInputAddress += (ulong)i * 0x44;
         }
 
-        //LogInputs(0x804C1FAC, 4);
-        Log(inputAddress, 4, "inputs");
-        Log(netplayAddress, 4, "netplay");
+        //Logs Digital Inputs
+        byte[] inputsByteArray = GetByteArrayAtAddress(logicalInputAddress, 4, "inputs");
+        RegisterDigitalInputs(inputsByteArray);
+
+        //Test
+        GetByteArrayAtAddress(physicalTestAddress, 4, "ReadHitstun");
+
+
     }
 
-    void Log(ulong _logicalAddressHex, uint _size, string log)
+    ulong GetPhysicalCharacterDataLocation()
     {
+        ulong logicalPlayerEntityPointerAddress = stateOffsets.AddOffsetToAddress("PlayerEntityPointer", stateOffsets.playerStateAddress);
+
+        ulong phyiscalPlayerEntityPointerAddress = GetPhysicalAddress(logicalPlayerEntityPointerAddress); 
+
+        byte[] playerEntityPointer = GetByteArrayAtAddress(phyiscalPlayerEntityPointerAddress, 4, "offsetPlayerEntityPointer");
+
+        ulong logicalPlayerEntityAddress = stateOffsets.GetAddressFromPointer(playerEntityPointer);
+
+        ulong physicalPlayerEntityAdress = GetPhysicalAddress(logicalPlayerEntityAddress);
+
+        ulong physicalCharacterDataPointerAddress = stateOffsets.AddOffsetToAddress("CharacterDataPointer", physicalPlayerEntityAdress);
+
+        byte[] characterDataPointer = GetByteArrayAtAddress(physicalCharacterDataPointerAddress, 4, "offsetCharacterDataPointer");
+
+        ulong logicalCharacterDataAddress = stateOffsets.GetAddressFromPointer(characterDataPointer);
+ 
+        ulong physicalCharacterDataAddress = GetPhysicalAddress(logicalCharacterDataAddress);
+
+        return physicalCharacterDataAddress;
+    }
+
+    byte[] GetByteArrayAtAddress(ulong _address, uint _size, string log)
+    {
+        Process targetProcess = Process.GetProcessesByName("Slippi Dolphin")[0];
+        byte[] memoryData = MemoryAccess.ReadMemory(targetProcess.Id, (IntPtr)_address, _size);
+
+        if(log != "inputs") LogData(memoryData, log);
+        //else stateHandler.RegisterHitStun(memoryData);
+
+        return memoryData;
+
+    }
+
+    ulong GetPhysicalAddress(ulong _logicalAddressHex)
+    {
+        UnityEngine.Debug.Log("Logical Address Hex: " + _logicalAddressHex);
         uint LogicalBase = 0x80000000;
 
         // Example offset calculation base (e.g., physical starts at 0xC0000000 for uncached)
@@ -44,19 +96,10 @@ public class MemoryManager : MonoBehaviour
         //UnityEngine.Debug.Log($"Offset: {offset}");
         ulong physicalAddress = PhysicalBase + offset;
 
-        Process targetProcess = Process.GetProcessesByName("Slippi Dolphin")[0];
-        IntPtr address = (IntPtr)physicalAddress; // Replace with the target memory address
-        //uint size = 4; // Number of bytes to read
-
-        byte[] memoryData = MemoryAccess.ReadMemory(targetProcess.Id, address, _size);
-        //UnityEngine.Debug.Log($"Memory Text: {Encoding.ASCII.GetString(memoryData)}");
-
-        if(log == "inputs") LogInputs(memoryData);
-        if(log == "netplay") LogNetplay(memoryData);
-
+        return physicalAddress; // Replace with the target memory address
     }
 
-    void LogInputs(byte[] _memoryData)
+    void RegisterDigitalInputs(byte[] _memoryData)
     {
         List<string> inputs = new();
 
@@ -68,9 +111,19 @@ public class MemoryManager : MonoBehaviour
         inputHandler.CheckInputs(inputs);
     }
 
-    void LogNetplay(byte[] _memoryData)
+    void LogData(byte[] _memoryData, string log)
     {
-        string memDataString = BitConverter.ToString(_memoryData);
-        UnityEngine.Debug.Log("memDataString:  " +  memDataString);
+        for(int i = 0; i < _memoryData.Length; i++)
+        {
+            UnityEngine.Debug.Log($"memData: {log}: Index: {i}, Data; {_memoryData[i]}");
+        }
+
+        stateHandler.RegisterHitStun(_memoryData);
+    }
+
+    public static string GetHexadecimal(ulong value)
+    {
+        // Convert ulong to hexadecimal
+        return value.ToString("X");
     }
 }

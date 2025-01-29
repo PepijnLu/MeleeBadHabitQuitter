@@ -163,13 +163,13 @@ public class ControllerBindings : MonoBehaviour
                     dPadTriggerPresses.Add("dpadUp");
                     break;
                 case 16:    
-                    dPadTriggerPresses.Add("Z");
+                    dPadTriggerPresses.Add("zPress");
                     break;
                 case 32:    
-                    dPadTriggerPresses.Add("R");
+                    dPadTriggerPresses.Add("rPress");
                     break;
                 case 64:    
-                    dPadTriggerPresses.Add("L");
+                    dPadTriggerPresses.Add("lPress");
                     break;
             }   
         }

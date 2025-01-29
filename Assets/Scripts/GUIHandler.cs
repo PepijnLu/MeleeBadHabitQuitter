@@ -8,19 +8,27 @@ using UnityEditor.Rendering;
 
 public class GUIHandler : MonoBehaviour
 {
-    [SerializeField] Image aButtonImg, bButtonImg, xButtonImg, yButtonImg, userADebug, userBDebug, userXDebug, userYDebug;
+    [SerializeField] Image aButtonImg, bButtonImg, xButtonImg, yButtonImg, zButtonImg, startPressImg, hitstunImg, dpadDownImg, dpadUpImg, dpadLeftImg, dpadRightImg, userADebug, userBDebug, userXDebug, userYDebug;
     Dictionary<string, Image> guiImages;
     [SerializeField] TMP_InputField aThresholdInp, bThresholdInp, jumpThresholdInp;
     [SerializeField] TextMeshProUGUI portText;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         guiImages = new()
         {
             ["aPress"] = aButtonImg,
             ["bPress"] = bButtonImg,
             ["yPress"] = yButtonImg,
-            ["xPress"] = xButtonImg
+            ["xPress"] = xButtonImg,
+            ["zPress"] = zButtonImg,
+            ["startPress"] = startPressImg,
+            ["hitstunImg"] = hitstunImg,
+
+            ["dpadDown"] = dpadDownImg,
+            ["dpadUp"] = dpadUpImg,
+            ["dpadLeft"] = dpadLeftImg,
+            ["dpadRight"] = dpadRightImg
         };
 
         aThresholdInp.onValueChanged.AddListener((text) => OnTextChanged(aThresholdInp, text));
@@ -33,6 +41,8 @@ public class GUIHandler : MonoBehaviour
 
         if (int.TryParse(portText.text, out int number) && number < 5) GameData.port = number;
         else throw new System.Exception("Port not found");
+
+        aThresholdInp.Select();
         
     }
 
@@ -117,7 +127,7 @@ public class GUIHandler : MonoBehaviour
         ToggleUIImage(userYDebug, GameData.jumpDebugging);
     }
 
-    void ToggleUIImage(Image _img, bool on)
+    public void ToggleUIImage(Image _img, bool on)
     {
         if(on) _img.gameObject.SetActive(true);
         else _img.gameObject.SetActive(false);
@@ -135,5 +145,11 @@ public class GUIHandler : MonoBehaviour
         GameData.port--;
         if(GameData.port <= 0) GameData.port = 4;
         portText.text = GameData.port.ToString();
+    }
+
+    public Image GetImageFromDicrionary(string _img)
+    {
+        if(guiImages.ContainsKey(_img)) return guiImages[_img];
+        else return null;
     }
 }
