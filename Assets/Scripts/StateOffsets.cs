@@ -16,10 +16,10 @@ public class StateOffsets : MonoBehaviour
         dataOffsets = new()
         {
             //From netplay address
-                //At index 0: 0 = not in online, 32 after going online once
                 ["Connection State"] = 0x00,
                 ["Local Player Ready"] = 0x01,
                 ["Remote Player Ready"] = 0x02,
+                //At index 0: 0 = not in online, 32 after going online once
                 ["Local Player Index"] = 0x03,
                 ["Remote Player Index"] = 0x04,
 
@@ -29,9 +29,19 @@ public class StateOffsets : MonoBehaviour
 				// [0x0B] = { type = "u8", name = "opponent.chatmsg_id" },					
 				// [0x0C] = { type = "u8", name = "chatmsg.index" },						
 				// [0x0D] = { type = "u32", name = "vs.left_names" },						
-				// [0x11] = { type = "u32", name = "vs.right_names" },	
+				// [0x11] = { type = "u32", name = "vs.right_names" },
 
+            //From Match State Struct
+                //At index 3: 0 when in match, 7 when not in match
+                ["Match Playing"] = 0x05,	
+            //From Controller Struct
+                //At index 0: 0 if connected, 255 if not connected
+                ["Is Connected"] = 0x41,
+            //From Stage Struct
+                //Index 3: Last Selected Stage
+                ["Stage ID"] = 0x88,
             //From Static Player Block
+                ["PlayerOffset"] = 0xE90,
                 //Data at index 1
                 ["HP Lost / Percentage"] = 0x60,
 
@@ -55,6 +65,10 @@ public class StateOffsets : MonoBehaviour
                         ["FacingDirection"] = 0x2c,
                         //Index 0: no jumps used = 0, first jump = 1, double jump = 2
                         ["Number Of Jumps Used"] = 0x1968,
+
+
+                        //Index 3: 183, 191 = missed tech on the ground
+                        ["Action State"] = 0x10,
 
                         //Definitly something to do with hitting (values are on hit, else 0 (index 0 and 1))
                         ["Hitlag Counter"] = 0x195C,

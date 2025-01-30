@@ -7,6 +7,7 @@ public class InputHandler : MonoBehaviour
     [SerializeField] GUIHandler guiHandler;
     [SerializeField] CustomButtonBehaviour customButtonBehaviour;
     List<string> inputsPreviousFrame = new();
+    public bool portConnected;
     Dictionary<string, bool> buttonPresses = new()
     {
         ["aPress"] = false,
@@ -58,6 +59,28 @@ public class InputHandler : MonoBehaviour
         }
 
         inputsPreviousFrame = _inputs;
+    }
+
+    public void CheckIfConnected(byte[] _memory)
+    {
+        if(_memory[0] == 0) 
+        {
+            if(!portConnected) UpdateConnected(true);
+        }
+        else if(_memory[0] == 255) 
+        {
+            if(portConnected) UpdateConnected(false);
+        }
+        else throw new System.Exception("Port Connected Value Unexpected");
+
+    }
+
+    void UpdateConnected(bool _connected)
+    {
+        portConnected = _connected;
+
+        guiHandler.ToggleUIImage(guiHandler.GetImageFromDicrionary("connectedImg"), _connected);
+        guiHandler.ToggleUIImage(guiHandler.GetImageFromDicrionary("disconnectedImg"), !_connected);
     }
 
     public void SetBool(string key, bool value)

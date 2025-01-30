@@ -8,10 +8,10 @@ using UnityEditor.Rendering;
 
 public class GUIHandler : MonoBehaviour
 {
-    [SerializeField] Image aButtonImg, bButtonImg, xButtonImg, yButtonImg, zButtonImg, startPressImg, hitstunImg, dpadDownImg, dpadUpImg, dpadLeftImg, dpadRightImg, userADebug, userBDebug, userXDebug, userYDebug;
+    [SerializeField] Image aButtonImg, bButtonImg, xButtonImg, yButtonImg, zButtonImg, startPressImg, hitstunImg, netplayImg, waitingForGameImg, knockdownImg, connectedImg, disconnectedImg, dpadDownImg, dpadUpImg, dpadLeftImg, dpadRightImg, attackAfterMissedTechCheck, jumpDuringHitstunCheck;
     Dictionary<string, Image> guiImages;
-    [SerializeField] TMP_InputField aThresholdInp, bThresholdInp, jumpThresholdInp;
-    [SerializeField] TextMeshProUGUI portText;
+    [SerializeField] public TextMeshProUGUI portText, fpsText;
+    private float fps;
     // Start is called before the first frame update
     void Awake()
     {
@@ -23,56 +23,36 @@ public class GUIHandler : MonoBehaviour
             ["xPress"] = xButtonImg,
             ["zPress"] = zButtonImg,
             ["startPress"] = startPressImg,
+
             ["hitstunImg"] = hitstunImg,
+            ["knockdownImg"] = knockdownImg,
 
             ["dpadDown"] = dpadDownImg,
             ["dpadUp"] = dpadUpImg,
             ["dpadLeft"] = dpadLeftImg,
-            ["dpadRight"] = dpadRightImg
+            ["dpadRight"] = dpadRightImg,
+
+            ["connectedImg"] = connectedImg,
+            ["disconnectedImg"] = disconnectedImg,
+            ["waitingForGameImg"] = waitingForGameImg,
+            ["netplayImg"] = netplayImg,
         };
-
-        aThresholdInp.onValueChanged.AddListener((text) => OnTextChanged(aThresholdInp, text));
-        bThresholdInp.onValueChanged.AddListener((text) => OnTextChanged(bThresholdInp, text));
-        jumpThresholdInp.onValueChanged.AddListener((text) => OnTextChanged(jumpThresholdInp, text));
-
-        OnTextChanged(aThresholdInp, aThresholdInp.text);
-        OnTextChanged(bThresholdInp, bThresholdInp.text);
-        OnTextChanged(jumpThresholdInp, jumpThresholdInp.text);
 
         if (int.TryParse(portText.text, out int number) && number < 5) GameData.port = number;
         else throw new System.Exception("Port not found");
 
-        aThresholdInp.Select();
-        
     }
 
-    // Update is called once per frame
+    void Start()
+    {
+        if(jumpDuringHitstunCheck.gameObject.activeSelf) GameData.jumpDuringHitstunDebugging = true;
+        if(attackAfterMissedTechCheck.gameObject.activeSelf) GameData.attackAfterMissedTechDebugging = true;
+    }
+
     void Update()
     {
-        
-    }
-
-    void OnTextChanged(TMP_InputField inputField, string text)
-    {
-        Debug.Log($"Input Field '{inputField.name}' Text Changed: {text}");
-
-        // Filter out non-numeric characters
-        string result = Regex.Replace(text, "[^0-9]", "");
-        Debug.Log($"Filtered Text: {result}");
-        inputField.text = result;
-        
-        if(inputField == aThresholdInp)
-        {
-            if (int.TryParse(result, out int number)) GameData.aThreshold = number;
-        }
-        else if (inputField == bThresholdInp)
-        {
-            if (int.TryParse(result, out int number)) GameData.bThreshold = number;
-        }
-        else if (inputField == jumpThresholdInp)
-        {
-            if (int.TryParse(result, out int number)) GameData.jumpThreshold = number;
-        }
+        // fps = Mathf.Lerp(fps, 1.0f / Time.unscaledDeltaTime, 0.1f);
+        // fpsText.text = "FPS: " + Mathf.RoundToInt(fps).ToString();
     }
 
     public void UpdateButtonPress(string _button, bool _pressed)
@@ -84,47 +64,32 @@ public class GUIHandler : MonoBehaviour
         }
     }
 
-    public void SwitchADebugging()
+    public void SwitchAttackAfterMissedTechDebugging()
     {
-        if(GameData.aDebugging)
+        if(GameData.attackAfterMissedTechDebugging)
         {
-            GameData.aDebugging = false;
+            GameData.attackAfterMissedTechDebugging = false;
         }
         else
         {
-            GameData.aDebugging = true;
+            GameData.attackAfterMissedTechDebugging = true;
         }
 
-        ToggleUIImage(userADebug, GameData.aDebugging);
+        ToggleUIImage(attackAfterMissedTechCheck, GameData.attackAfterMissedTechDebugging);
     }
 
-    public void SwitchBDebugging()
+    public void SwitchJumpDuringHitstunDebugging()
     {
-        if(GameData.bDebugging)
+        if(GameData.jumpDuringHitstunDebugging)
         {
-            GameData.bDebugging = false;
+            GameData.jumpDuringHitstunDebugging = false;
         }
         else
         {
-            GameData.bDebugging = true;
+            GameData.jumpDuringHitstunDebugging = true;
         }
 
-        ToggleUIImage(userBDebug, GameData.bDebugging);
-    }
-
-    public void SwitchJumpDebugging()
-    {
-        if(GameData.jumpDebugging)
-        {
-            GameData.jumpDebugging = false;
-        }
-        else
-        {
-            GameData.jumpDebugging = true;
-        }
-
-        ToggleUIImage(userXDebug, GameData.jumpDebugging);
-        ToggleUIImage(userYDebug, GameData.jumpDebugging);
+        ToggleUIImage(jumpDuringHitstunCheck, GameData.jumpDuringHitstunDebugging);
     }
 
     public void ToggleUIImage(Image _img, bool on)
@@ -135,16 +100,26 @@ public class GUIHandler : MonoBehaviour
 
     public void IncreasePort()
     {
-        GameData.port++;
-        if(GameData.port >= 5) GameData.port = 1;
-        portText.text = GameData.port.ToString();
+        if(!GameData.inNetplay)
+        {
+            GameData.port++;
+            if(GameData.port >= 5) GameData.port = 1;
+            Debug.Log("Current Port: " + GameData.port);
+            portText.text = GameData.port.ToString();
+            GameData.localPort = GameData.port;
+        }
     }
 
     public void DecreasePort()
     {
-        GameData.port--;
-        if(GameData.port <= 0) GameData.port = 4;
-        portText.text = GameData.port.ToString();
+        if(!GameData.inNetplay)
+        {
+            GameData.port--;
+            if(GameData.port <= 0) GameData.port = 4;
+            Debug.Log("Current Port: " + GameData.port);
+            portText.text = GameData.port.ToString();
+            GameData.localPort = GameData.port;
+        }
     }
 
     public Image GetImageFromDicrionary(string _img)

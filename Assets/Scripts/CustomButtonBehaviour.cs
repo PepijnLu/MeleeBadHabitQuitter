@@ -25,26 +25,13 @@ public class CustomButtonBehaviour : MonoBehaviour
     {
         if(pressed && buttonPressesPerSecond.ContainsKey(_button)) buttonPressesPerSecond[_button]++;
 
-        if(_button == "yPress" || _button == "xPress")
+        if((_button == "yPress" || _button == "xPress") && GameData.jumpDuringHitstunDebugging)
         {
-            // if((buttonPressesPerSecond["yPress"] + buttonPressesPerSecond["xPress"] >= GameData.jumpThreshold) && GameData.jumpDebugging)
-            // {
-            //     buttonPressesPerSecond["yPress"] = 0;
-            //     buttonPressesPerSecond["xPress"] = 0;
-            //     PlayAudioAtRandomPitch(buzzerSound);
-            // }
-
-            if(stateHandler.inHitStun && !buzzerSound.isPlaying && GameData.jumpDebugging) PlayAudioAtRandomPitch(buzzerSound);
+            if(stateHandler.inHitStun && !buzzerSound.isPlaying) PlayAudioAtRandomPitch(buzzerSound);
         }
-        else if((buttonPressesPerSecond["aPress"] >= GameData.aThreshold) && GameData.aDebugging)
+        else if((_button == "aPress") && GameData.attackAfterMissedTechDebugging)
         {
-            buttonPressesPerSecond[_button] = 0;
-            PlayAudioAtRandomPitch(buzzerSound);
-        }
-        else if((buttonPressesPerSecond["bPress"] >= GameData.bThreshold) && GameData.bDebugging)
-        {
-            buttonPressesPerSecond[_button] = 0;
-            PlayAudioAtRandomPitch(buzzerSound);
+            if(stateHandler.missedTech && !buzzerSound.isPlaying) PlayAudioAtRandomPitch(buzzerSound);
         }
     }
 

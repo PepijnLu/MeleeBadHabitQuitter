@@ -4,6 +4,6 @@ using UnityEngine;
 
 public static class GameData
 {
-    public static bool aDebugging, bDebugging, jumpDebugging;
-    public static int aThreshold, bThreshold, jumpThreshold, port;
+    public static bool attackAfterMissedTechDebugging, jumpDuringHitstunDebugging, inMatch, gameRunning, inNetplay;
+    public static int aThreshold, bThreshold, jumpThreshold, port, localPort;
 }
