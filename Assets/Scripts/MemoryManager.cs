@@ -31,8 +31,6 @@ public class MemoryManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        targetProcess = Process.GetProcessesByName("Slippi Dolphin")[0];
-
         phyicalCurrentMenuAddress = GetPhysicalAddress(0x8065CC14);
         physicalMatchInfoStructAddress = GetPhysicalAddress(0x8046B6A0, "matchInfo");
         matchPlayingAddress = stateOffsets.AddOffsetToAddress("Match Playing", physicalMatchInfoStructAddress);
@@ -77,7 +75,24 @@ public class MemoryManager : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {        
+    {     
+        if(targetProcess == null)
+        {   
+            UnityEngine.Debug.Log("FindingProgram");
+            Process[] slippiDolphin = Process.GetProcessesByName("Slippi Dolphin");
+            if(slippiDolphin.Length > 0) 
+            {
+                targetProcess = slippiDolphin[0];
+                targetProcess.EnableRaisingEvents = true;
+                targetProcess.Exited += (sender, e) =>
+                {
+                    UnityEngine.Debug.Log($"Process {targetProcess} has exited.");
+                    targetProcess = null;
+                };
+            }
+            return;
+        }
+
         GetByteArrayAtAddress(phyicalCurrentMenuAddress, 1, "CheckIfGameRunning");
 
         if(GameData.gameRunning)
